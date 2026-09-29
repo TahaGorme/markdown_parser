@@ -40,11 +40,20 @@ impl Parser {
     }
 
     fn parse_list(&mut self) -> String {
-        self.consume_char();
-        self.consume_whitespace();
+        let mut items = String::new();
+        loop {
+            self.consume_char();
+            self.consume_whitespace();
 
-        let text = self.parse_text();
-        create_html_element("li".to_string(), text)
+            let text = self.parse_text();
+            items.push_str(&create_html_element("li".to_string(), text));
+
+            self.consume_whitespace();
+            if !self.starts_with("- ") {
+                break;
+            }
+        }
+        create_html_element("ul".to_string(), items)
     }
 
     fn parse_title(&mut self) -> String {
