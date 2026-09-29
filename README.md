@@ -4,7 +4,7 @@ A tiny markdown parser written from scratch in Rust, compiled to WebAssembly and
 
 ## What it does
 
-Parses a small subset of markdown into HTML: `#` headings, `-` lists, and plain paragraphs. The parser is hand-written in Rust with no parsing libraries, just a position over the input and a few consume helpers.
+Parses a small subset of markdown into HTML: `#` headings, `-` lists, `**bold**`, and plain paragraphs. The parser is hand-written in Rust with no parsing libraries, just a position over the input and a few consume helpers.
 
 It compiles to WebAssembly with wasm-bindgen and exports a single `parse(input)` function back to JavaScript. `index.js` renders the result into the page as you type.
 
@@ -14,7 +14,7 @@ The parser is one struct holding the whole input and a position into it. `parse_
 
 - `#` calls `parse_title`, which counts the leading hashes for the level (clamped to `h6`) and reads the rest as text.
 - `-` calls `parse_list`, which keeps collecting `-` lines into a single `<ul>`.
-- anything else is a paragraph, read with `parse_text`.
+- anything else is a paragraph, read with `parse_text`. Inside a paragraph, a `**...**` run is handed to `parse_bold` and wrapped in `<strong>`.
 
 Text is consumed by `consume_while`, which appends characters while a condition holds. `consume_char` advances the position by the width of one UTF-8 character, so multi-byte input does not split. Each piece is wrapped in a tag by `create_html_element`.
 
