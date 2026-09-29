@@ -60,7 +60,7 @@ impl Parser {
         let hash = self.consume_while(|c| c == '#');
         self.consume_whitespace();
         let text = self.parse_text();
-        create_html_element(format!("h{}", hash.len()), text)
+        create_html_element(format!("h{}", hash.len().min(6)), text)
     }
 
     fn parse_text(&mut self) -> String {
