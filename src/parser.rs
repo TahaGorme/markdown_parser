@@ -62,9 +62,30 @@ impl Parser {
         let text = self.parse_text();
         create_html_element(format!("h{}", hash.len().min(6)), text)
     }
+    fn parse_bold(&mut self) -> String {
+        self.consume_char();
+        self.consume_char();
+        let mut text = String::new();
+        while !self.end_of_line() && !is_newline(self.next_char()) && !self.starts_with("**") {
+            text.push(self.consume_char());
+        }
 
+        if self.starts_with("**") {
+            self.consume_char();
+            self.consume_char();
+        }
+        create_html_element("strong".to_string(), text)
+    }
     fn parse_text(&mut self) -> String {
-        self.consume_while(|c| !is_newline(c))
+        let mut result = String::new();
+        while !self.end_of_line() && !is_newline(self.next_char()) {
+            if self.starts_with("**") {
+                result.push_str(&self.parse_bold());
+            } else {
+                result.push(self.consume_char())
+            }
+        }
+        result
     }
     fn end_of_line(&self) -> bool {
         self.pos >= self.input.len()
