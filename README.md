@@ -8,6 +8,16 @@ Parses a small subset of markdown into HTML: `#` headings, `-` lists, and plain 
 
 It compiles to WebAssembly with wasm-bindgen and exports a single `parse(input)` function back to JavaScript. `index.js` renders the result into the page as you type.
 
+## How it works
+
+The parser is one struct holding the whole input and a position into it. `parse_lines` loops: skip whitespace, stop at the end, otherwise dispatch on the first character of the line.
+
+- `#` calls `parse_title`, which counts the leading hashes for the level (clamped to `h6`) and reads the rest as text.
+- `-` calls `parse_list`, which keeps collecting `-` lines into a single `<ul>`.
+- anything else is a paragraph, read with `parse_text`.
+
+Text is consumed by `consume_while`, which appends characters while a condition holds. `consume_char` advances the position by the width of one UTF-8 character, so multi-byte input does not split. Each piece is wrapped in a tag by `create_html_element`.
+
 ## What I learned
 
 - Writing a parser from scratch: tracking a position, peeking at the next char, and consuming characters, whitespace, and runs of text.
